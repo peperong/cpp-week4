@@ -20,27 +20,35 @@ void list(Database &database) {
     for (int i = 0; i < database.size; ++i) {
         std::cout << database.entries[i]->key << ": ";
         if (database.entries[i]->type == INT) {
-            std::cout << *(int*)(database.entries[i]->value) << std::endl;
+            std::cout << *static_cast<int*>(database.entries[i]->value) << std::endl;
         } else if (database.entries[i]->type == DOUBLE) {
-            std::cout << *(double*)(database.entries[i]->value) << std::endl;
+            std::cout << *static_cast<double*>(database.entries[i]->value) << std::endl;
         } else if (database.entries[i]->type == STRING) {
-            std::cout << *(std::string*)(database.entries[i]->value) << std::endl;
+            std::cout << *static_cast<std::string*>(database.entries[i]->value) << std::endl;
         } else if (database.entries[i]->type == ARRAY) {
-            std::cout << *((std::string*)database.entries[i]->value);
+            std::cout << "[";
+            int* arr = static_cast<int*>(database.entries[i]->value);
+            int size = *static_cast<int*>(database.entries[i]->value);
+            for (int j = 0; j < size; ++j) {
+                std::cout << arr[j+1];
+                if (j < size - 1) {
+                    std::cout << ", ";
+                }
             }
+            std::cout << "]" << std::endl;
         }
     }
-
+}
 void add(Database &database, Entry *entry) {
     if (database.size == database.capacity) {
-        database.capacity *= 2;
+        database.capacity *= 1;
         database.entries = (Entry **)realloc(database.entries, database.capacity * sizeof(Entry *));
     }
     database.entries[database.size++] = entry;
     
 }
 Entry *get(Database &database, std::string &key) {
-    for (int i = 0; i < database.size; ++i) {
+    for (int i = 0; i < database.size; i++) {
         if (database.entries[i]->key == key) {
             return database.entries[i];
         }

@@ -54,15 +54,20 @@ int main() {
             value = new std::string(stringValue);
         } else if (type == ARRAY) {
             std::cout << "size: ";
-                int size;
-                std::cin >> size;
-                int* arrayValue = new int[size];
-                for (int i = 0; i < size; ++i) {
-                    std::cout << "item[" << i << "]: ";
-                    std::cin >> arrayValue[i];
-                }
-                value = arrayValue;
+            int size; 
+            std::cin >> size;
+            int* arrayValue = new int[size];
+            for (int i = 0; i < size; ++i) {
+                std::cout << "item[" << i << "]: ";
+                std::cin >> arrayValue[i];
             }
+            value = new int[size+1];
+            *(static_cast<int*>(value)) = size;
+            for (int i = 0; i < size; ++i) {
+                (static_cast<int*>(value))[i+1] = arrayValue[i];
+            }
+            delete[] arrayValue;
+        }
 
             Entry *entry = create(type, key, value);
             add(db, entry);
@@ -72,12 +77,28 @@ int main() {
             std::cout << "key: ";
             std::cin >> key;
             Entry *result = get(db, key);
-            if (result != nullptr) {
-                std::cout << result->key << ": " << result->value << std::endl;
-            }
-            else {
-                std::cout << "not found." << std::endl;
-            }
+            if (result == nullptr) {
+                std::cout << "not found" << std::endl;
+            }else {
+                if (result->type == INT) {
+                    std::cout << key << ": " << *static_cast<int*>(result->value) << std::endl;
+                } else if (result->type == DOUBLE) {
+                    std::cout << key << ": " <<  *static_cast<double*>(result->value) << std::endl;
+                } else if (result->type == STRING) {
+                    std::cout << key << ": " << *static_cast<std::string*>(result->value) << std::endl;
+                } else if (result->type == ARRAY) {
+                    std::cout << key<< ": [";
+                    int* arr = static_cast<int*>(result->value);
+                    int size = *static_cast<int*>(result->value);
+                    for (int j = 0; j < size; ++j) {
+                        std::cout << arr[j+1];
+                        if (j < size - 1) {
+                            std::cout << ", ";
+                        }
+                    }
+                    std::cout << "]" << std::endl;
+                }
+}
         }
         else if (command.find("del") != std::string::npos) {
             std::cout << "key: ";
